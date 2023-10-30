@@ -10,7 +10,7 @@ resource "aws_vpc" "this" {
   enable_dns_support                   = var.dns_support != null ? var.dns_support : true
   enable_network_address_usage_metrics = var.net_metrics != null ? var.net_metrics : true
   instance_tenancy                     = var.instance_tenancy != "" ? var.instance_tenancy : "default"
-  tags                                 = { Name = "${var.role}-vpc" }
+  tags                                 = merge({ Name = "${var.role}-vpc" }, var.tags)
 }
 
 resource "aws_subnet" "isolated" {
@@ -18,7 +18,7 @@ resource "aws_subnet" "isolated" {
   vpc_id            = aws_vpc.this.id
   cidr_block        = cidrsubnet(var.cidr_block, var.isolated_bits, count.index)
   availability_zone = local.selected_azs[count.index % length(local.selected_azs)]
-  tags              = { Name = "${var.role}-vpc-isolated-subnet-${count.index + 1}" }
+  tags              = merge({ Name = "${var.role}-vpc-isolated-subnet-${count.index + 1}" }, var.tags)
 }
 
 resource "aws_subnet" "public" {
@@ -26,7 +26,7 @@ resource "aws_subnet" "public" {
   vpc_id            = aws_vpc.this.id
   cidr_block        = cidrsubnet(var.cidr_block, var.public_bits, count.index + local.isolated_count)
   availability_zone = local.selected_azs[count.index % length(local.selected_azs)]
-  tags              = { Name = "${var.role}-vpc-public-subnet-${count.index + 1}" }
+  tags              = merge({ Name = "${var.role}-vpc-public-subnet-${count.index + 1}" }, var.tags)
 }
 
 resource "aws_subnet" "private" {
@@ -34,25 +34,25 @@ resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.this.id
   cidr_block        = cidrsubnet(var.cidr_block, var.private_bits, count.index + local.isolated_count + local.public_count)
   availability_zone = local.selected_azs[count.index % length(local.selected_azs)]
-  tags              = { Name = "${var.role}-vpc-private-subnet-${count.index + 1}" }
+  tags              = merge({ Name = "${var.role}-vpc-private-subnet-${count.index + 1}" }, var.tags)
 }
 
 resource "aws_route_table" "isolated" {
   count  = var.az_count
   vpc_id = aws_vpc.this.id
-  tags   = { Name = "${var.role}-vpc-isolated-rt-${count.index + 1}" }
+  tags   = merge({ Name = "${var.role}-vpc-isolated-rt-${count.index + 1}" }, var.tags)
 }
 
 resource "aws_route_table" "public" {
   count  = var.role != "private" ? local.public_count : 0
   vpc_id = aws_vpc.this.id
-  tags   = { Name = "${var.role}-vpc-public-rt-${count.index + 1}" }
+  tags   = merge({ Name = "${var.role}-vpc-public-rt-${count.index + 1}" }, var.tags)
 }
 
 resource "aws_route_table" "private" {
   count  = var.az_count
   vpc_id = aws_vpc.this.id
-  tags   = { Name = "${var.role}-vpc-private-rt-${count.index + 1}" }
+  tags   = merge({ Name = "${var.role}-vpc-private-rt-${count.index + 1}" }, var.tags)
 }
 
 resource "aws_route_table_association" "isolated" {
@@ -76,35 +76,35 @@ resource "aws_route_table_association" "private" {
 resource "aws_internet_gateway" "this" {
   count  = var.role == "private" ? 0 : 1
   vpc_id = aws_vpc.this.id
-  tags   = { Name = "${var.role}-vpc-igw" }
+  tags   = merge({ Name = "${var.role}-vpc-igw" }, var.tags)
 }
 
 resource "aws_eip" "nat" {
   count = var.role == "egress" && length(aws_subnet.public) > 0 ? var.az_count : 0
-  tags  = { Name = "${var.role}-vpc-nat-eip-${count.index + 1}" }
+  tags  = merge({ Name = "${var.role}-vpc-nat-eip-${count.index + 1}" }, var.tags)
 }
 
 resource "aws_nat_gateway" "this" {
   count         = var.role == "egress" && length(aws_subnet.public) > 0 ? var.az_count : 0
   subnet_id     = aws_subnet.public[count.index].id
   allocation_id = aws_eip.nat[count.index].id
-  tags          = { Name = "${var.role}-vpc-nat-gw-${count.index + 1}" }
+  tags          = merge({ Name = "${var.role}-vpc-nat-gw-${count.index + 1}" }, var.tags)
 }
 
 resource "aws_s3_bucket" "flow_logs" {
   count         = try(var.flow_log_config.s3.create_bucket, false) ? 1 : 0
-  bucket        = "${data.aws_caller_identity.current.account_id}-${var.role}-vpc-flow-logs"
+  bucket        = "flow-logs-${var.role}-vpc-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
 }
 
 resource "aws_cloudwatch_log_group" "flow_log_group" {
   count = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0
-  name  = "${data.aws_caller_identity.current.account_id}-${var.role}-vpc-flow-logs"
+  name  = "flow-logs-${var.role}-vpc-${data.aws_caller_identity.current.account_id}"
 }
 
 resource "aws_iam_role" "flow_log_role" {
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
-  name               = "${data.aws_caller_identity.current.account_id}-${var.role}-vpc-flow-log-role"
+  name               = "flow-logs-${var.role}-vpc-${data.aws_caller_identity.current.account_id}"
 }
 
 resource "aws_iam_role_policy" "s3_flow_log_policy" {

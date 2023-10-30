@@ -83,3 +83,7 @@ variable "flow_log_config" {
     kinesis_data_firehose = null
   }
 }
+
+variable "tags" {
+  type = map(string)
+}
