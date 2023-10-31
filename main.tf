@@ -163,5 +163,5 @@ resource "aws_vpc_dhcp_options" "this" {
 resource "aws_vpc_dhcp_options_association" "this" {
   count           = try(var.dhcp_options, false) ? 1 : 0
   vpc_id          = aws_vpc.this.id
-  dhcp_options_id = aws_vpc_dhcp_options.this.id
+  dhcp_options_id = aws_vpc_dhcp_options[count.index].this.id
 }
