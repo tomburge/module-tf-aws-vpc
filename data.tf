@@ -1,10 +1,10 @@
-data "aws_region" "current" {}
-
 data "aws_availability_zones" "available" {
   state = "available"
 }
 
 data "aws_caller_identity" "current" {}
+
+data "aws_region" "current" {}
 
 data "aws_iam_policy_document" "assume_role" {
   statement {
@@ -16,6 +16,21 @@ data "aws_iam_policy_document" "assume_role" {
       type        = "Service"
       identifiers = ["vpc-flow-logs.amazonaws.com"]
     }
+  }
+}
+
+data "aws_iam_policy_document" "cloudwatch_flow_log_policy" {
+  statement {
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams"
+    ]
+
+    resources = ["*"]
+    effect    = "Allow"
   }
 }
 
@@ -33,20 +48,5 @@ data "aws_iam_policy_document" "s3_flow_log_policy" {
     ]
 
     effect = "Allow"
-  }
-}
-
-data "aws_iam_policy_document" "cloudwatch_flow_log_policy" {
-  statement {
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
-      "logs:DescribeLogGroups",
-      "logs:DescribeLogStreams"
-    ]
-
-    resources = ["*"]
-    effect    = "Allow"
   }
 }

@@ -1,30 +1,22 @@
-# # Outputs
-output "vpc_id" {
-  description = "The ID of the VPC"
-  value       = aws_vpc.this.id
+# Outputs
+output "cloudwatch_log_group_name" {
+  description = "The name of the CloudWatch log group for flow logs"
+  value       = try(aws_cloudwatch_log_group.flow_log_group[0].name, null)
 }
 
-output "vpc_cidr_block" {
-  description = "The CIDR block of the VPC"
-  value       = aws_vpc.this.cidr_block
+output "dhcp_options" {
+  description = "The DHCP Options of the VPC"
+  value       = aws_vpc_dhcp_options.this
 }
 
-output "public_subnets" {
-  description = "Information about the public subnets"
-  value = {
-    ids                = aws_subnet.public.*.id
-    cidr_blocks        = aws_subnet.public.*.cidr_block
-    availability_zones = aws_subnet.public.*.availability_zone
-  }
+output "internet_gateway_id" {
+  description = "The ID of the Internet Gateway"
+  value       = try(aws_internet_gateway.this[0].id, null)
 }
 
-output "private_subnets" {
-  description = "Information about the private subnets"
-  value = {
-    ids                = aws_subnet.private.*.id
-    cidr_blocks        = aws_subnet.private.*.cidr_block
-    availability_zones = aws_subnet.private.*.availability_zone
-  }
+output "isolated_route_table_ids" {
+  description = "The IDs of the isolated route tables"
+  value       = aws_route_table.isolated.*.id
 }
 
 output "isolated_subnets" {
@@ -44,9 +36,18 @@ output "nat_gateways" {
   } : null
 }
 
-output "internet_gateway_id" {
-  description = "The ID of the Internet Gateway"
-  value       = try(aws_internet_gateway.this[0].id, null)
+output "private_route_table_ids" {
+  description = "The IDs of the private route tables"
+  value       = aws_route_table.private.*.id
+}
+
+output "private_subnets" {
+  description = "Information about the private subnets"
+  value = {
+    ids                = aws_subnet.private.*.id
+    cidr_blocks        = aws_subnet.private.*.cidr_block
+    availability_zones = aws_subnet.private.*.availability_zone
+  }
 }
 
 output "public_route_table_ids" {
@@ -54,14 +55,13 @@ output "public_route_table_ids" {
   value       = aws_route_table.public.*.id
 }
 
-output "private_route_table_ids" {
-  description = "The IDs of the private route tables"
-  value       = aws_route_table.private.*.id
-}
-
-output "isolated_route_table_ids" {
-  description = "The IDs of the isolated route tables"
-  value       = aws_route_table.isolated.*.id
+output "public_subnets" {
+  description = "Information about the public subnets"
+  value = {
+    ids                = aws_subnet.public.*.id
+    cidr_blocks        = aws_subnet.public.*.cidr_block
+    availability_zones = aws_subnet.public.*.availability_zone
+  }
 }
 
 output "s3_flow_log_bucket_arn" {
@@ -69,7 +69,12 @@ output "s3_flow_log_bucket_arn" {
   value       = try(aws_s3_bucket.flow_logs[0].arn, null)
 }
 
-output "cloudwatch_log_group_name" {
-  description = "The name of the CloudWatch log group for flow logs"
-  value       = try(aws_cloudwatch_log_group.flow_log_group[0].name, null)
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value       = aws_vpc.this.id
+}
+
+output "vpc_cidr_block" {
+  description = "The CIDR block of the VPC"
+  value       = aws_vpc.this.cidr_block
 }

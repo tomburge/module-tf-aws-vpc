@@ -1,7 +1,9 @@
 locals {
-  selected_azs   = slice(data.aws_availability_zones.available.names, 0, var.az_count)
-  public_count   = var.az_count
-  isolated_count = var.az_count
+  selected_azs         = slice(data.aws_availability_zones.available.names, 0, var.az_count)
+  public_count         = var.az_count
+  isolated_count       = var.az_count
+  default_dhcp_options = null
+  dhcp_options         = var.dhcp_options != null ? var.dhcp_options : local.default_dhcp_options
 }
 
 resource "aws_vpc" "this" {
@@ -153,14 +155,21 @@ resource "aws_route" "private_nat_gateway" {
 }
 
 resource "aws_vpc_dhcp_options" "this" {
-  count               = var.dhcp_options != null ? 1 : 0
-  domain_name         = var.dhcp_options.domain_name != null ? var.dhcp_options.domain_name : null
-  domain_name_servers = var.dhcp_options.domain_name_servers != null ? var.dhcp_options.domain_name_servers : null
-  ntp_servers         = var.dhcp_options.ntp_servers != null ? var.dhcp_options.ntp_servers : null
+  count                = local.dhcp_options != null ? 1 : 0
+  domain_name          = local.dhcp_options.domain_name
+  domain_name_servers  = local.dhcp_options.domain_name_servers
+  ntp_servers          = local.dhcp_options.ntp_servers
+  netbios_name_servers = local.dhcp_options.netbios_name_servers
+  netbios_node_type    = local.dhcp_options.netbios_node_type
+  tags                 = merge({ Name = "${var.role}-vpc-dhcp-options" }, var.tags)
 }
 
 resource "aws_vpc_dhcp_options_association" "this" {
-  count           = var.dhcp_options != null ? 1 : 0
+  count           = local.dhcp_options != null ? 1 : 0
   vpc_id          = aws_vpc.this.id
-  dhcp_options_id = aws_vpc_dhcp_options.this[count.index].id
+  dhcp_options_id = aws_vpc_dhcp_options.this[0].id
+}
+
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.this.id
 }
