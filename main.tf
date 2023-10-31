@@ -172,4 +172,5 @@ resource "aws_vpc_dhcp_options_association" "this" {
 
 resource "aws_default_security_group" "default" {
   vpc_id = aws_vpc.this.id
+  tags   = { Name = "${var.role}-vpc-default-security-group" }
 }
