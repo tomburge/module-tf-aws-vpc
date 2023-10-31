@@ -157,11 +157,10 @@ resource "aws_vpc_dhcp_options" "this" {
   domain_name         = try(var.dhcp_options.domain_name, null)
   domain_name_servers = try(var.dhcp_options.domain_name_servers, null)
   ntp_servers         = try(var.dhcp_options.ntp_servers, null)
-  # tags                = {}
 }
 
 resource "aws_vpc_dhcp_options_association" "this" {
   count           = try(var.dhcp_options, false) ? 1 : 0
   vpc_id          = aws_vpc.this.id
-  dhcp_options_id = aws_vpc_dhcp_options[count.index].this.id
+  dhcp_options_id = aws_vpc_dhcp_options.this[count.index].id
 }
