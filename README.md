@@ -114,3 +114,8 @@ Isolated Subnets are intended to be used as subnets where resources such as Tran
 | /25      | 3    | /28         |
 | /26      | 2    | /28         |
 | /27      | 1    | /28         |
+
+## What this module doesn't do
+
+No support for IPv6
+No support for IPAM
