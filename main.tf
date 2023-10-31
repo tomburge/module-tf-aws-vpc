@@ -151,3 +151,15 @@ resource "aws_route" "private_nat_gateway" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.this[count.index % var.az_count].id
 }
+
+resource "aws_vpc_dhcp_options" "this" {
+  domain_name         = var.dhcp_options.domain_name
+  domain_name_servers = var.dhcp_options.domain_name_servers
+  ntp_servers         = var.dhcp_options.ntp_servers
+  # tags                = {}
+}
+
+resource "aws_vpc_dhcp_options_association" "this" {
+  vpc_id          = aws_vpc.this.id
+  dhcp_options_id = aws_vpc_dhcp_options.this.id
+}

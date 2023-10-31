@@ -58,6 +58,11 @@ variable "private_bits" {
   type        = number
 }
 
+variable "dhcp_options" {
+  type    = any
+  default = {}
+}
+
 variable "flow_log_config" {
   type = object({
     s3 = optional(object({
