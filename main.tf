@@ -153,14 +153,14 @@ resource "aws_route" "private_nat_gateway" {
 }
 
 resource "aws_vpc_dhcp_options" "this" {
-  count               = try(var.dhcp_options, false) ? 1 : 0
+  count               = var.dhcp_options != null ? 1 : 0
   domain_name         = try(var.dhcp_options.domain_name, null)
   domain_name_servers = try(var.dhcp_options.domain_name_servers, null)
   ntp_servers         = try(var.dhcp_options.ntp_servers, null)
 }
 
 resource "aws_vpc_dhcp_options_association" "this" {
-  count           = try(var.dhcp_options, false) ? 1 : 0
+  count           = var.dhcp_options != null ? 1 : 0
   vpc_id          = aws_vpc.this.id
   dhcp_options_id = aws_vpc_dhcp_options.this[count.index].id
 }
