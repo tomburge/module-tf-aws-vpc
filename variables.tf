@@ -59,8 +59,16 @@ variable "private_bits" {
 }
 
 variable "dhcp_options" {
-  type    = any
-  default = {}
+  type = object({
+    domain_name         = optional(string)
+    domain_name_servers = optional(list(string))
+    ntp_servers         = optional(list(string))
+  })
+  default = {
+    domain_name         = null
+    domain_name_servers = null
+    ntp_servers         = null
+  }
 }
 
 variable "flow_log_config" {

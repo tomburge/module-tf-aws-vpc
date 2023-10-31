@@ -154,9 +154,9 @@ resource "aws_route" "private_nat_gateway" {
 
 resource "aws_vpc_dhcp_options" "this" {
   count               = var.dhcp_options != null ? 1 : 0
-  domain_name         = try(var.dhcp_options.domain_name, null)
-  domain_name_servers = try(var.dhcp_options.domain_name_servers, null)
-  ntp_servers         = try(var.dhcp_options.ntp_servers, null)
+  domain_name         = var.dhcp_options.domain_name != null ? var.dhcp_options.domain_name : null
+  domain_name_servers = var.dhcp_options.domain_name_servers != null ? var.dhcp_options.domain_name_servers : null
+  ntp_servers         = var.dhcp_options.ntp_servers != null ? var.dhcp_options.ntp_servers : null
 }
 
 resource "aws_vpc_dhcp_options_association" "this" {
