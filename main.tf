@@ -126,20 +126,20 @@ resource "aws_iam_role_policy" "s3_flow_log_policy" {
   policy = data.aws_iam_policy_document.s3_flow_log_policy[count.index].json
 }
 
-resource "aws_flow_log" "s3_flow_log" {
-  count                    = try(var.flow_log_config.s3.create_bucket, false) ? 1 : 0
-  log_destination          = try(var.flow_log_config.s3.arn, module.flow_logs_bucket.bucket_arn) # aws_s3_bucket.flow_logs[0].arn
-  log_destination_type     = "s3"
-  traffic_type             = try(var.flow_log_config.s3.traffic_type, "ALL")
-  max_aggregation_interval = try(var.flow_log_config.s3.max_aggregation, 600)
-  vpc_id                   = aws_vpc.this.id
-}
-
 resource "aws_iam_role_policy" "cloudwatch_flow_log_policy" {
   count  = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0
   role   = aws_iam_role.flow_log_role.id
   policy = data.aws_iam_policy_document.cloudwatch_flow_log_policy.json
 }
+
+# resource "aws_flow_log" "s3_flow_log" {
+#   count                    = try(var.flow_log_config.s3.create_bucket, false) ? 1 : 0
+#   log_destination          = try(var.flow_log_config.s3.arn, module.flow_logs_bucket.bucket_arn) # aws_s3_bucket.flow_logs[0].arn
+#   log_destination_type     = "s3"
+#   traffic_type             = try(var.flow_log_config.s3.traffic_type, "ALL")
+#   max_aggregation_interval = try(var.flow_log_config.s3.max_aggregation, 600)
+#   vpc_id                   = aws_vpc.this.id
+# }
 
 resource "aws_flow_log" "cloudwatch_flow_log" {
   count                    = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0
