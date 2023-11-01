@@ -79,3 +79,7 @@ output "vpc_cidr_block" {
   description = "The CIDR block of the VPC"
   value       = aws_vpc.this.cidr_block
 }
+
+output "testbucket" {
+  value = module.flow_logs_bucket
+}
