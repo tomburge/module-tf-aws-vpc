@@ -134,7 +134,7 @@ resource "aws_iam_role_policy" "cloudwatch_flow_log_policy" {
 
 resource "aws_flow_log" "s3_flow_log" {
   count                    = try(var.flow_log_config.s3.create_bucket, false) ? 1 : 0
-  log_destination          = module.flow_logs_bucket.bucket_arn
+  log_destination          = module.flow_logs_bucket[0].bucket_arn
   log_destination_type     = "s3"
   traffic_type             = try(var.flow_log_config.s3.traffic_type, "ALL")
   max_aggregation_interval = try(var.flow_log_config.s3.max_aggregation, 600)
