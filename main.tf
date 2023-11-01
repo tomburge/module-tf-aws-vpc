@@ -104,12 +104,6 @@ module "flow_logs_bucket" {
   }
 }
 
-# resource "aws_s3_bucket" "flow_logs" {
-#   count         = try(var.flow_log_config.s3.create_bucket, false) ? 1 : 0
-#   bucket        = "flow-logs-${var.name}-vpc-${data.aws_caller_identity.current.account_id}"
-#   force_destroy = true
-# }
-
 resource "aws_cloudwatch_log_group" "flow_log_group" {
   count = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0
   name  = "flow-logs-${var.name}-vpc-${data.aws_caller_identity.current.account_id}"

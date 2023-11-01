@@ -64,11 +64,11 @@ output "public_subnets" {
   }
 }
 
-# output "s3_flow_log_bucket_arn" {
-#   description = "The ARN of the S3 bucket for flow logs"
-#   value       = try(module.flow_logs_bucket.bucket_arn, null)
-#   # value       = try(aws_s3_bucket.flow_logs[0].arn, null)
-# }
+output "s3_flow_log_bucket_arn" {
+  description = "The ARN of the S3 bucket for flow logs"
+  value       = try(module.flow_logs_bucket[0].bucket_arn, null)
+  # value       = try(aws_s3_bucket.flow_logs[0].arn, null)
+}
 
 output "vpc_id" {
   description = "The ID of the VPC"
@@ -78,8 +78,4 @@ output "vpc_id" {
 output "vpc_cidr_block" {
   description = "The CIDR block of the VPC"
   value       = aws_vpc.this.cidr_block
-}
-
-output "testbucket" {
-  value = module.flow_logs_bucket
 }
