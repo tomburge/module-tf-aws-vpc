@@ -42,6 +42,10 @@ variable "isolated_bits" {
   type        = number
 }
 
+variable "name" {
+  type = string
+}
+
 variable "public_bits" {
   description = "The number of Public Subnet Bits."
   type        = number
