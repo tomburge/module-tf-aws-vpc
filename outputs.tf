@@ -64,10 +64,14 @@ output "public_subnets" {
   }
 }
 
+output "s3_flow_log_bucket" {
+  description = "The S3 bucket for flow logs"
+  value       = try(module.flow_logs_bucket[0], null)
+}
+
 output "s3_flow_log_bucket_arn" {
   description = "The ARN of the S3 bucket for flow logs"
   value       = try(module.flow_logs_bucket[0].bucket_arn, null)
-  # value       = try(aws_s3_bucket.flow_logs[0].arn, null)
 }
 
 output "vpc_id" {
