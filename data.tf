@@ -43,8 +43,10 @@ data "aws_iam_policy_document" "s3_flow_log_policy" {
     ]
 
     resources = [
-      "${aws_s3_bucket.flow_logs[count.index].arn}/*",
-      "${aws_s3_bucket.flow_logs[count.index].arn}"
+      "${module.flow_logs_bucket.bucket_arn}/*",
+      "${module.flow_logs_bucket.bucket_arn}"
+      # "${aws_s3_bucket.flow_logs[count.index].arn}/*",
+      # "${aws_s3_bucket.flow_logs[count.index].arn}"
     ]
 
     effect = "Allow"
