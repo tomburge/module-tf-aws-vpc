@@ -93,11 +93,22 @@ resource "aws_nat_gateway" "this" {
   tags          = merge({ Name = "${var.name}-vpc-nat-gw-${count.index + 1}" }, var.tags)
 }
 
-resource "aws_s3_bucket" "flow_logs" {
+module "flow_logs_bucket" {
+  source        = "github.com/tomburge/module-tf-aws-s3-bucket?ref=main"
   count         = try(var.flow_log_config.s3.create_bucket, false) ? 1 : 0
-  bucket        = "flow-logs-${var.name}-vpc-${data.aws_caller_identity.current.account_id}"
+  bucket_name   = "flow-logs-${var.name}-vpc-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
+  access_log_config = {
+    target_bucket = var.flow_log_config.s3.access_log_config.target_bucket
+    target_prefix = var.flow_log_config.s3.access_log_config.target_prefix
+  }
 }
+
+# resource "aws_s3_bucket" "flow_logs" {
+#   count         = try(var.flow_log_config.s3.create_bucket, false) ? 1 : 0
+#   bucket        = "flow-logs-${var.name}-vpc-${data.aws_caller_identity.current.account_id}"
+#   force_destroy = true
+# }
 
 resource "aws_cloudwatch_log_group" "flow_log_group" {
   count = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0
@@ -117,7 +128,7 @@ resource "aws_iam_role_policy" "s3_flow_log_policy" {
 
 resource "aws_flow_log" "s3_flow_log" {
   count                    = try(var.flow_log_config.s3.create_bucket, false) ? 1 : 0
-  log_destination          = try(var.flow_log_config.s3.arn, aws_s3_bucket.flow_logs[0].arn)
+  log_destination          = try(var.flow_log_config.s3.arn, module.flow_logs_bucket.bucket_arn) # aws_s3_bucket.flow_logs[0].arn
   log_destination_type     = "s3"
   traffic_type             = try(var.flow_log_config.s3.traffic_type, "ALL")
   max_aggregation_interval = try(var.flow_log_config.s3.max_aggregation, 600)

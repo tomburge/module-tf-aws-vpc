@@ -76,10 +76,15 @@ variable "dhcp_options" {
 variable "flow_log_config" {
   type = object({
     s3 = optional(object({
-      create_bucket   = bool
-      force_destroy   = bool
+      create_bucket   = optional(bool)
+      arn             = optional(string)
+      force_destroy   = optional(bool)
       traffic_type    = string
       max_aggregation = number
+      access_log_config = object({
+        target_bucket = string
+        target_prefix = string
+      })
     }))
     cloudwatch_logs = optional(object({
       create_log_group = bool
