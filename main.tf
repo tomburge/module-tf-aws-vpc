@@ -167,12 +167,12 @@ resource "aws_route" "private_nat_gateway" {
   nat_gateway_id         = aws_nat_gateway.this[count.index % var.az_count].id
 }
 
-# resource "aws_route" "private_nat_gateway" {
-#   count                  = var.role == "egress" ? length(aws_route_table.private) : {}
-#   route_table_id         = each.value.route_table_id
-#   destination_cidr_block = "0.0.0.0/0"
-#   nat_gateway_id         = each.value.nat_gateway_id
-# }
+resource "aws_route" "private_nat_gateway" {
+  count                  = var.role == "egress" ? length(aws_route_table.isolated) : 0
+  route_table_id         = aws_route_table.isolated[count.index % length(aws_route_table.isolated)].id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.this[count.index % var.az_count].id
+}
 
 resource "aws_vpc_dhcp_options" "this" {
   count                = local.dhcp_options != null ? 1 : 0
