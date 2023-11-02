@@ -167,7 +167,7 @@ resource "aws_route" "public_internet_gateway" {
 # }
 
 resource "aws_route" "private_nat_gateway" {
-  for_each               = var.role == "egress" ? aws_route_table.private : {}
+  count                  = var.role == "egress" ? length(aws_route_table.private) : {}
   route_table_id         = each.value.route_table_id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = each.value.nat_gateway_id
