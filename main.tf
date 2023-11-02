@@ -5,12 +5,12 @@ locals {
   default_dhcp_options = null
   dhcp_options         = var.dhcp_options != null ? var.dhcp_options : local.default_dhcp_options
 
-  private_nat_gateway_configurations = {
-    for idx, rt in aws_route_table.private : idx => {
-      route_table_id = rt.id
-      nat_gateway_id = aws_nat_gateway.this[idx % var.az_count].id
-    }
-  }
+  # private_nat_gateway_configurations = {
+  #   for idx, rt in aws_route_table.private : idx => {
+  #     route_table_id = rt.id
+  #     nat_gateway_id = aws_nat_gateway.this[idx % var.az_count].id
+  #   }
+  # }
 }
 
 resource "aws_vpc" "this" {
@@ -167,7 +167,7 @@ resource "aws_route" "public_internet_gateway" {
 # }
 
 resource "aws_route" "private_nat_gateway" {
-  for_each               = var.role == "egress" ? local.private_nat_gateway_configurations : {}
+  for_each               = var.role == "egress" ? aws_route_table.private : {}
   route_table_id         = each.value.route_table_id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = each.value.nat_gateway_id
