@@ -159,7 +159,7 @@ resource "aws_route" "public_internet_gateway" {
   gateway_id             = aws_internet_gateway.this[0].id
 }
 
-resource "aws_route" "private_nat_gateway" {
+resource "aws_route" "nat_gateway_private" {
   # count                  = var.role == "egress" ? var.private_per_az : 0
   count                  = var.role == "egress" ? length(aws_route_table.private) : 0
   route_table_id         = aws_route_table.private[count.index % length(aws_route_table.private)].id
@@ -167,7 +167,7 @@ resource "aws_route" "private_nat_gateway" {
   nat_gateway_id         = aws_nat_gateway.this[count.index % var.az_count].id
 }
 
-resource "aws_route" "private_nat_gateway" {
+resource "aws_route" "nat_gateway_isolated" {
   count                  = var.role == "egress" ? length(aws_route_table.isolated) : 0
   route_table_id         = aws_route_table.isolated[count.index % length(aws_route_table.isolated)].id
   destination_cidr_block = "0.0.0.0/0"
