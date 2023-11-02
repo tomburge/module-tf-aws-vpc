@@ -4,6 +4,13 @@ locals {
   isolated_count       = var.az_count
   default_dhcp_options = null
   dhcp_options         = var.dhcp_options != null ? var.dhcp_options : local.default_dhcp_options
+
+  private_nat_gateway_configurations = {
+    for idx, rt in aws_route_table.private : idx => {
+      route_table_id = rt.id
+      nat_gateway_id = aws_nat_gateway.this[idx % var.az_count].id
+    }
+  }
 }
 
 resource "aws_vpc" "this" {
@@ -152,11 +159,18 @@ resource "aws_route" "public_internet_gateway" {
   gateway_id             = aws_internet_gateway.this[0].id
 }
 
+# resource "aws_route" "private_nat_gateway" {
+#   count                  = var.role == "egress" ? var.private_per_az : 0
+#   route_table_id         = aws_route_table.private[count.index % length(aws_route_table.private)].id
+#   destination_cidr_block = "0.0.0.0/0"
+#   nat_gateway_id         = aws_nat_gateway.this[count.index % var.az_count].id
+# }
+
 resource "aws_route" "private_nat_gateway" {
-  count                  = var.role == "egress" ? var.private_per_az : 0
-  route_table_id         = aws_route_table.private[count.index % length(aws_route_table.private)].id
+  for_each               = var.role == "egress" ? local.private_nat_gateway_configurations : {}
+  route_table_id         = each.value.route_table_id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.this[count.index % var.az_count].id
+  nat_gateway_id         = each.value.nat_gateway_id
 }
 
 resource "aws_vpc_dhcp_options" "this" {
