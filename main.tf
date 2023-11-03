@@ -104,12 +104,6 @@ module "flow_logs_bucket" {
   }
 }
 
-# resource "aws_cloudwatch_log_group" "flow_log_group" {
-#   count             = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0
-#   name              = "flow-logs-${var.name}-vpc-${data.aws_caller_identity.current.account_id}"
-#   retention_in_days = 365
-# }
-
 module "flow_logs_log_group" {
   source            = "github.com/tomburge/module-tf-aws-cloudwatch-loggroup?ref=main"
   count             = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0

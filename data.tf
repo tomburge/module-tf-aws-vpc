@@ -9,9 +9,8 @@ data "aws_region" "current" {}
 data "aws_iam_policy_document" "assume_role" {
   statement {
     sid     = "AllowAssumeRole"
-    effect  = "Allow"
     actions = ["sts:AssumeRole"]
-
+    effect  = ["Allow"]
     principals {
       type        = "Service"
       identifiers = ["vpc-flow-logs.amazonaws.com"]
@@ -28,9 +27,8 @@ data "aws_iam_policy_document" "cloudwatch_flow_log_policy" {
       "logs:DescribeLogGroups",
       "logs:DescribeLogStreams"
     ]
-
-    resources = ["${module.flow_logs_log_group[0].arn}"]
     effect    = "Allow"
+    resources = ["${module.flow_logs_log_group[0].arn}"]
   }
 }
 
@@ -41,12 +39,10 @@ data "aws_iam_policy_document" "s3_flow_log_policy" {
       "s3:PutObject",
       "s3:GetBucketAcl"
     ]
-
+    effect = "Allow"
     resources = [
       "${module.flow_logs_bucket[0].bucket_arn}/*",
       "${module.flow_logs_bucket[0].bucket_arn}"
     ]
-
-    effect = "Allow"
   }
 }
