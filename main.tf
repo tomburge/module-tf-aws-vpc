@@ -4,13 +4,6 @@ locals {
   isolated_count       = var.az_count
   default_dhcp_options = null
   dhcp_options         = var.dhcp_options != null ? var.dhcp_options : local.default_dhcp_options
-
-  # private_nat_gateway_configurations = {
-  #   for idx, rt in aws_route_table.private : idx => {
-  #     route_table_id = rt.id
-  #     nat_gateway_id = aws_nat_gateway.this[idx % var.az_count].id
-  #   }
-  # }
 }
 
 resource "aws_vpc" "this" {
@@ -111,9 +104,18 @@ module "flow_logs_bucket" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "flow_log_group" {
-  count = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0
-  name  = "flow-logs-${var.name}-vpc-${data.aws_caller_identity.current.account_id}"
+# resource "aws_cloudwatch_log_group" "flow_log_group" {
+#   count             = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0
+#   name              = "flow-logs-${var.name}-vpc-${data.aws_caller_identity.current.account_id}"
+#   retention_in_days = 365
+# }
+
+module "flow_logs_log_group" {
+  source            = "github.com/tomburge/module-tf-aws-cloudwatch-loggroup?ref=main"
+  count             = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0
+  name              = "flow-logs-${var.name}-vpc-${data.aws_caller_identity.current.account_id}"
+  destroy           = var.flow_log_config.cloudwatch_logs.force_destroy
+  retention_in_days = var.flow_log_config.cloudwatch_logs.retention_in_days
 }
 
 resource "aws_iam_role" "flow_log_role" {
