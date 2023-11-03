@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "cloudwatch_flow_log_policy" {
       "logs:DescribeLogStreams"
     ]
 
-    resources = ["${module.flow_log_group.arn}"]
+    resources = ["${aws_cloudwatch_log_group.flow_log_group.arn}"]
     effect    = "Allow"
   }
 }
