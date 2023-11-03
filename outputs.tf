@@ -1,7 +1,7 @@
 # Outputs
 output "cloudwatch_log_group_name" {
   description = "The name of the CloudWatch log group for flow logs"
-  value       = try(aws_cloudwatch_log_group.flow_log_group[0].name, null)
+  value       = try(module.flow_logs_log_group[0].name, null)
 }
 
 output "dhcp_options" {
