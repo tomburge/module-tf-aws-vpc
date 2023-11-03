@@ -109,7 +109,7 @@ module "flow_logs_log_group" {
   count          = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0
   name           = "flow-logs-${var.name}-vpc-${data.aws_caller_identity.current.account_id}"
   destroy        = var.flow_log_config.cloudwatch_logs.force_destroy
-  retention_days = var.flow_log_config.cloudwatch_logs.retention_in_days
+  retention_days = var.flow_log_config.cloudwatch_logs.retention_days
 }
 
 resource "aws_iam_role" "flow_log_role" {
