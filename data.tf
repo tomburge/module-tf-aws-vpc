@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "assume_role" {
   statement {
     sid     = "AllowAssumeRole"
     actions = ["sts:AssumeRole"]
-    effect  = ["Allow"]
+    effect  = "Allow"
     principals {
       type        = "Service"
       identifiers = ["vpc-flow-logs.amazonaws.com"]
