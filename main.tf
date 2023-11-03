@@ -146,7 +146,7 @@ resource "aws_flow_log" "s3_flow_log" {
 
 resource "aws_flow_log" "cloudwatch_flow_log" {
   count                    = try(var.flow_log_config.cloudwatch_logs.create_log_group, false) ? 1 : 0
-  log_destination          = try(var.flow_log_config.cloudwatch_logs.arn, aws_cloudwatch_log_group.flow_log_group[count.index].arn)
+  log_destination          = try(var.flow_log_config.cloudwatch_logs.arn, module.flow_logs_log_group[count.index].arn)
   log_destination_type     = "cloud-watch-logs"
   traffic_type             = try(var.flow_log_config.cloudwatch_logs.traffic_type, "ALL")
   max_aggregation_interval = try(var.flow_log_config.s3.max_aggregation, 600)
