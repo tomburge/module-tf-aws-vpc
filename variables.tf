@@ -35,8 +35,8 @@ variable "dns_support" {
 variable "flow_log_config" {
   type = object({
     s3 = optional(object({
-      create_bucket   = optional(bool)
       arn             = optional(string)
+      create_bucket   = optional(bool)
       force_destroy   = optional(bool)
       traffic_type    = string
       max_aggregation = number
@@ -46,11 +46,12 @@ variable "flow_log_config" {
       })
     }))
     cloudwatch_logs = optional(object({
-      create_log_group  = optional(bool)
-      force_destroy     = optional(bool)
-      traffic_type      = string
-      max_aggregation   = number
-      retention_in_days = optional(number)
+      arn              = optional(string)
+      create_log_group = optional(bool)
+      force_destroy    = optional(bool)
+      traffic_type     = string
+      max_aggregation  = number
+      retention_days   = optional(number)
     }))
     kinesis_data_firehose = optional(object({
       create_stream   = bool
