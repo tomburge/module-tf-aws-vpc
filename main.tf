@@ -1,11 +1,4 @@
-locals {
-  selected_azs         = slice(data.aws_availability_zones.available.names, 0, var.az_count)
-  public_count         = var.az_count
-  isolated_count       = var.az_count
-  default_dhcp_options = null
-  dhcp_options         = var.dhcp_options != null ? var.dhcp_options : local.default_dhcp_options
-}
-
+# Resources
 resource "aws_vpc" "this" {
   cidr_block                           = var.cidr_block
   enable_dns_hostnames                 = var.dns_hostnames != null ? var.dns_hostnames : true
@@ -156,7 +149,6 @@ resource "aws_route" "public_internet_gateway" {
 }
 
 resource "aws_route" "nat_gateway_private" {
-  # count                  = var.role == "egress" ? var.private_per_az : 0
   count                  = var.role == "egress" ? length(aws_route_table.private) : 0
   route_table_id         = aws_route_table.private[count.index % length(aws_route_table.private)].id
   destination_cidr_block = "0.0.0.0/0"
